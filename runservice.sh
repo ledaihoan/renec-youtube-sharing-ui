@@ -21,5 +21,6 @@ yarn
 yarn build
 echo "Step3/3 >>> running app..."
 export NODE_ENV=$APP_PROF
+export PORT=5000
 pm2 startOrReload ecosystem.config.js
 echo "Done!"

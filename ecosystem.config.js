@@ -13,6 +13,9 @@ module.exports = {
             max_memory_restart: '1536M',
             log_date_format: 'YYYY-MM-DD HH:mm Z',
             node_args: '--max-old-space-size=2048',
+            env: {
+                PORT: 5000,
+            }
         }
     ]
 }

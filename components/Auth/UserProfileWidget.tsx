@@ -8,7 +8,7 @@ export type UserProfileWidgetProps = {
 export default function UserProfileWidget({ authData, logout }: UserProfileWidgetProps) {
   return (
     <Group>
-      <Text fw={500}>{ authData.email }</Text>
+      <Text fw={500}>Welcome { authData.email }</Text>
       <Button onClick={() => logout()} size="sm">Logout</Button>
     </Group>
   );

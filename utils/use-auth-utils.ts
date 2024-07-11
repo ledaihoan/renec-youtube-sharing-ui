@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { clearAuthData, getAuthData, storeAuthData } from '@/utils/storage-utils';
 import { AuthData } from '@/types/auth-data';
-import { apiClient } from '@/http/api-client';
+import { publicApiClient } from '@/http/public-api-client';
 import { LoginData } from '@/types/login-data.';
 
 export function useAuth() {
@@ -21,13 +21,13 @@ export function useAuth() {
 
   const loginUser = async (data: LoginData) => {
     const { email, password } = data;
-    const { accessToken } = await apiClient.login(email, password);
+    const { accessToken } = await publicApiClient.login(email, password);
     await login({ email, loginToken: accessToken });
   };
 
   const registerUser = async (data: LoginData) => {
     const { email, password } = data;
-    const { registrationToken } = await apiClient.register(email, password);
+    const { registrationToken } = await publicApiClient.register(email, password);
     await login({ email, loginToken: registrationToken });
   };
 

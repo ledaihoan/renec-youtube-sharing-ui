@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 import { AuthData } from '@/types/auth-data';
 
-const dbName = 'AuthDB';
+const dbName = process.env.NEXT_PUBLIC_IDB_NAME || 'AuthDB';
 const authStoreName = 'auth';
 const version = 1;
 

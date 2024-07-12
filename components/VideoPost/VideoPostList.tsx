@@ -1,36 +1,56 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollArea, Stack, Text, Container, Loader } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import dayjs from 'dayjs';
+import _ from 'lodash';
 import VideoPostItem from './VideoPostItem';
 import { VideoPostData } from '@/types/video-post-data';
 import { publicApiClient } from '@/http/public-api-client';
+import { useAuth } from '@/utils/use-auth-utils';
+import { authenticatedApiClient } from '@/http/authenticated-api-client';
+import { VideoReactionData } from '@/types/video-reaction-data';
 
 function VideoPostList() {
   const viewport = useRef<HTMLDivElement>(null);
-  const [videoPosts, setVideoPosts] = useState<VideoPostData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const timestamp = dayjs().unix();
-  const cacheTimestamp = timestamp - (timestamp % 900);
-  const queryHook = useQuery({
-    queryKey: ['video-posts', `${cacheTimestamp}`],
+  const { authData } = useAuth();
+  const videoPostsQuery = useQuery({
+    queryKey: ['video-posts'],
     queryFn: async () => publicApiClient.searchVideoPosts({ cursor: '' }),
   });
 
+  const userReactionsQuery = useQuery({
+    queryKey: ['user_reactions', authData?.id],
+    queryFn: async () => authenticatedApiClient.searchUserReactions(authData!.id, {}),
+    enabled: !!authData,
+  });
+
   useEffect(() => {
-    if (!queryHook || queryHook.isPending) {
-      setIsLoading(true);
-    } else {
-      setIsLoading(false);
+    setIsLoading(videoPostsQuery.isPending || (!!authData && userReactionsQuery.isPending));
+  }, [videoPostsQuery.isPending, userReactionsQuery.isPending, authData]);
 
-      if (queryHook.data && Array.isArray(queryHook.data.results)) {
-        const fetchedVideoPosts = [...(queryHook.data.results as VideoPostData[])];
-        setVideoPosts(fetchedVideoPosts);
+  const videoPosts = useMemo(() => {
+    console.log('videoPosts');
+    if (videoPostsQuery.data && Array.isArray(videoPostsQuery.data.results)) {
+      const posts = [...videoPostsQuery.data.results] as VideoPostData[];
+
+      if (userReactionsQuery.data && Array.isArray(userReactionsQuery.data)) {
+        const reactions = userReactionsQuery.data as VideoReactionData[];
+        return posts.map((post) => {
+          const reaction = _.find(
+            reactions, item => item.videoId === post.id
+          );
+          return {
+            ...post,
+            currentVoteType: reaction?.type || '',
+          };
+        });
       }
+      return posts;
     }
-  }, [queryHook]);
+    return [];
+  }, [videoPostsQuery.data, userReactionsQuery.data]);
 
-  if (queryHook.isError) {
+  if (videoPostsQuery.isError) {
     return <Text>Error while trying to fetch video posts...</Text>;
   }
 

@@ -16,12 +16,13 @@ function VideoPostItem(
     upvoteCount,
     downVoteCount,
     userId,
+    currentVoteType,
   }: VideoPostData
 ) {
   const embedUrl = getYouTubeEmbedUrl(url);
   const queryClient = useQueryClient();
   const [voteData, setVoteData] = useState({ upvoteCount, downVoteCount });
-  const [voteType, setVoteType] = useState('');
+  const [voteType, setVoteType] = useState(currentVoteType || '');
   const mutation = useMutation({
     mutationFn: (type: string) =>
       authenticatedApiClient.setVideoPostReaction({ videoId: id, type }),
@@ -29,7 +30,7 @@ function VideoPostItem(
       queryClient.invalidateQueries({ queryKey: ['video-posts'] });
       const newVoteData = {
         upvoteCount: voteData.upvoteCount + (type === 'upvote' ? 1 : voteType === 'upvote' ? -1 : 0),
-        downVoteCount: voteData.downVoteCount + (type === 'downVote' ? 1 : voteType === 'downVote' ? -1 : 0),
+        downVoteCount: voteData.downVoteCount + (type === 'down_vote' ? 1 : voteType === 'down_vote' ? -1 : 0),
       };
       setVoteData(newVoteData);
       setVoteType(type);
@@ -77,9 +78,9 @@ function VideoPostItem(
                 { voteType === 'upvote' && (<IconThumbUp fill="" stroke="none" size="1.5rem" />)}
                 { voteType !== 'upvote' && (<IconThumbUp size="1.5rem" />)}
               </ActionIcon>
-              <ActionIcon onClick={() => mutation.mutate('downVote')} variant="subtle" color="red">
-                { voteType === 'downVote' && (<IconThumbDown fill="" stroke="none" size="1.5rem" />)}
-                { voteType !== 'downVote' && (<IconThumbDown size="1.5rem" />)}
+              <ActionIcon onClick={() => mutation.mutate('down_vote')} variant="subtle" color="red">
+                { voteType === 'down_vote' && (<IconThumbDown fill="" stroke="none" size="1.5rem" />)}
+                { voteType !== 'down_vote' && (<IconThumbDown size="1.5rem" />)}
               </ActionIcon>
               <Text size="sm" c="dimmed">Shared by {sharedBy || userId}</Text>
           </div>

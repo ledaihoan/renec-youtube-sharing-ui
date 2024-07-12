@@ -7,4 +7,5 @@ export type VideoPostData = {
   sharedBy?: string;
   upvoteCount: number;
   downVoteCount: number;
+  currentVoteType?: string;
 };

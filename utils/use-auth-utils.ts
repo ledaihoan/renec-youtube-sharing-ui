@@ -3,6 +3,7 @@ import { clearAuthData, getAuthData, storeAuthData } from '@/utils/storage-utils
 import { AuthData } from '@/types/auth-data';
 import { publicApiClient } from '@/http/public-api-client';
 import { LoginData } from '@/types/login-data.';
+import { parseJwt } from '@/utils/text-utils';
 
 export function useAuth() {
   const [authData, setAuthData] = useState<AuthData | null>(null);
@@ -10,7 +11,11 @@ export function useAuth() {
   useEffect(() => {
     // Load auth data from IndexedDB on component mount
     getAuthData().then((storedAuthData) => {
-      setAuthData(storedAuthData);
+      if (storedAuthData && storedAuthData.id) {
+        setAuthData(storedAuthData);
+      } else {
+        clearAuthData(); // Clear invalid auth data
+      }
     });
   }, []);
 
@@ -22,13 +27,13 @@ export function useAuth() {
   const loginUser = async (data: LoginData) => {
     const { email, password } = data;
     const { accessToken } = await publicApiClient.login(email, password);
-    await login({ email, loginToken: accessToken });
+    await login({ email, loginToken: accessToken, id: parseJwt(accessToken).id });
   };
 
   const registerUser = async (data: LoginData) => {
     const { email, password } = data;
     const { registrationToken } = await publicApiClient.register(email, password);
-    await login({ email, loginToken: registrationToken });
+    await login({ email, loginToken: registrationToken, id: parseJwt(registrationToken).id });
   };
 
   const logout = async () => {

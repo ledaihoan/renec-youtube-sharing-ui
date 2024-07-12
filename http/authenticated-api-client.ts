@@ -49,6 +49,10 @@ export type VideoPostReaction = {
   videoId: string;
   type: string;
 };
+
+export type SearchVideoPostReaction = {
+  videoIds?: string[]
+};
 export const authenticatedApiClient = {
   instance,
   addVideoPost: async (payload: VideoPostDto) => {
@@ -88,5 +92,9 @@ export const authenticatedApiClient = {
       }
     }
     await logout();
+  },
+  searchUserReactions: async (userId: string, payload: SearchVideoPostReaction) => {
+      const response = await instance.post(`/users/${userId}/reactions/search`, payload);
+      return response.data;
   },
 };

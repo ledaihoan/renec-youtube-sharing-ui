@@ -22,6 +22,7 @@ export function useAuth() {
   const login = async (newAuthData: AuthData) => {
     await storeAuthData(newAuthData);
     setAuthData(newAuthData);
+    window.location.href = '/';
   };
 
   const loginUser = async (data: LoginData) => {
@@ -39,6 +40,7 @@ export function useAuth() {
   const logout = async () => {
     await clearAuthData();
     setAuthData(null);
+    window.location.href = '/';
   };
 
   return { authData, loginUser, logout, registerUser };

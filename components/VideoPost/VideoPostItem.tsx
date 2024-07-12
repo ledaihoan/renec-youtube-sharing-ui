@@ -5,9 +5,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getYouTubeEmbedUrl } from '@/utils/text-utils';
 import { VideoPostData } from '@/types/video-post-data';
 import { authenticatedApiClient } from '@/http/authenticated-api-client';
+import { useAuth } from '@/utils/use-auth-utils';
+
+export type VideoPostItemProps = {
+  post: VideoPostData;
+};
 
 function VideoPostItem(
-  {
+  { post } : VideoPostItemProps
+) {
+  const {
     url,
     id,
     title,
@@ -17,8 +24,8 @@ function VideoPostItem(
     downVoteCount,
     userId,
     currentVoteType,
-  }: VideoPostData
-) {
+  } = post;
+  const { authData } = useAuth();
   const embedUrl = getYouTubeEmbedUrl(url);
   const queryClient = useQueryClient();
   const [voteData, setVoteData] = useState({ upvoteCount, downVoteCount });
@@ -74,14 +81,18 @@ function VideoPostItem(
         <Flex w={{ base: '100%', sm: '70%' }} direction="column" style={{ flex: 1, maxWidth: 840 }}>
           <div>
               <Text size="lg" fw={700}>{title}</Text>
-              <ActionIcon onClick={() => mutation.mutate('upvote')} variant="subtle" color="blue">
-                { voteType === 'upvote' && (<IconThumbUp fill="" stroke="none" size="1.5rem" />)}
-                { voteType !== 'upvote' && (<IconThumbUp size="1.5rem" />)}
-              </ActionIcon>
-              <ActionIcon onClick={() => mutation.mutate('down_vote')} variant="subtle" color="red">
-                { voteType === 'down_vote' && (<IconThumbDown fill="" stroke="none" size="1.5rem" />)}
-                { voteType !== 'down_vote' && (<IconThumbDown size="1.5rem" />)}
-              </ActionIcon>
+              { authData && (
+                <>
+                  <ActionIcon onClick={() => mutation.mutate('upvote')} variant="subtle" color="blue">
+                    { voteType === 'upvote' && (<IconThumbUp fill="" stroke="none" size="1.5rem" />)}
+                    { voteType !== 'upvote' && (<IconThumbUp size="1.5rem" />)}
+                  </ActionIcon>
+                  <ActionIcon onClick={() => mutation.mutate('down_vote')} variant="subtle" color="red">
+                    { voteType === 'down_vote' && (<IconThumbDown fill="" stroke="none" size="1.5rem" />)}
+                    { voteType !== 'down_vote' && (<IconThumbDown size="1.5rem" />)}
+                  </ActionIcon>
+                </>
+              )}
               <Text size="sm" c="dimmed">Shared by {sharedBy || userId}</Text>
           </div>
           <Group gap="xs">

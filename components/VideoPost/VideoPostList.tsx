@@ -88,7 +88,7 @@ function VideoPostList() {
       >
         <Stack gap="md">
           {videoPosts.map((post, index) => (
-            <VideoPostItem key={index} {...post} />
+            <VideoPostItem key={index} post={post} />
           ))}
         </Stack>
       </ScrollArea>
